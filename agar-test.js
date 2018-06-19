@@ -62,6 +62,7 @@ function setup(c){
             sta : 100,
             max_sta : 100,
             movable : true,
+            opacity : 1,
             ctx : c.getContext("2d")
         },
         rc : {
@@ -115,7 +116,7 @@ function get_circle(c){
     players.p.ctx.beginPath();
     players.p.ctx.arc(players.p.x,players.p.y,players.p.r,0,2*Math.PI);
     players.p.ctx.closePath();
-    players.p.ctx.fillStyle = "white";
+    players.p.ctx.fillStyle = "rgba(255, 255, 255," + players.p.opacity + ")";
     players.p.ctx.fill();
 }
 
@@ -248,7 +249,7 @@ function update_stats(){
 }
 
 window.onmousemove = move_cell;
-window.onkeydown = window.onmousedown = game;
+window.onkeydown = window.onmousedown = move_list;
 
 function move_cell(e){
     if(players.p.movable){
@@ -287,14 +288,14 @@ function redraw(c, e){
     spawn_food(c);
     get_circle(c);
     random_cell(c);
-    game(e);
+    move_list(e);
 }
 
-function game(e){
+function move_list(e){
     var c = document.getElementById("canvas");
     var ctx = c.getContext("2d");
     //Teleport Key 3 
-    if(((e.keyCode == 51 || e.which == 51) || moves.c3) && players.p.nrg >= 60){
+    if(((e.keyCode == 51 || e.which == 51) || moves.c3) && players.p.nrg >= 60 && !moves.c4 && !moves.c5){
         ctx.clearRect(0, 0, c.width, c.height);
         spawn_food(c);
         random_cell(c);
@@ -368,12 +369,6 @@ function game(e){
                 var radius = players.p.r;
                 var getRadiusIncrement = players.p.r/300;
                 var getTimer = setInterval(function(){
-                    window.onmousedown = function(e){
-
-                    }
-                    window.onkeydown = function(e){
-
-                    }  
                     if(players.p.r>= 0){
                         ctx.clearRect(0, 0, c.width, c.height);
                         spawn_food(c);
@@ -404,5 +399,7 @@ function game(e){
             }
         }
         moves.c3 = true;
+    } else if (((e.keyCode == 52 || e.which == 52) || moves.c4) && players.p.nrg >= 50 && !moves.c5 && !moves.c5){
+        console.log("You have pressed 4");
     }
 }
