@@ -189,39 +189,55 @@ function update_stats(){
         var pn = document.getElementById("pellets_number");
         var sn = document.getElementById("stamina_number");
 
-        var setHealth = players.p.max_hp * (players.p.hp / players.p.max_hp);
+        var setHealth = Math.round(players.p.max_hp * (players.p.hp / players.p.max_hp) * 100) / 100;
         health.style.width = setHealth + "px";
+        players.p.hp = setHealth;
         hn.innerHTML = players.p.hp + "/" + players.p.max_hp;
 
-        var setEnergy = players.p.max_nrg * (players.p.nrg / players.p.max_nrg);
+        var setEnergy = Math.round(players.p.max_nrg * (players.p.nrg / players.p.max_nrg) * 100) / 100;
         energy.style.width = setEnergy + "px";
+        players.p.nrg = setEnergy;
         en.innerHTML = players.p.nrg + "/" + players.p.max_nrg;
 
-        var setPellets = players.p.max_pel * (players.p.pel / players.p.max_pel);
+        var setPellets = Math.round(players.p.max_pel * (players.p.pel / players.p.max_pel) * 100) / 100;
         pellets.style.width = setPellets + "px";
+        players.p.pel = setPellets;
         pn.innerHTML = players.p.pel + "/" + players.p.max_pel;
 
-        var setStamina = players.p.max_sta * (players.p.sta / players.p.max_sta);
+        var setStamina = Math.round(players.p.max_sta * (players.p.sta / players.p.max_sta) * 100) / 100;
         stamina.style.width = setStamina + "px";
+        players.p.sta = setStamina;
         sn.innerHTML = players.p.sta + "/" + players.p.max_sta;  
     }
     
     var update = setInterval(function(){
         //Health
-        if(players.p.hp != players.p.max_hp){
+        if(players.p.max_hp > players.p.hp && players.p.max_hp - players.p.hp >= .2){
             players.p.hp += .2;
+        } else if(players.p.max_hp - players.p.hp < .2) {
+            players.p.hp += (players.p.max_hp - players.p.hp);
+        } else {
+            players.p.hp += 0;
         }
         
         //Energy
-        if(players.p.nrg != players.p.max_nrg){
+        if(players.p.max_nrg > players.p.nrg && players.p.max_nrg - players.p.nrg >= 1){
             players.p.nrg += 1;
+        } else if(players.p.max_nrg - players.p.nrg < 1) {
+            players.p.nrg += (players.p.max_nrg - players.p.nrg);
+        } else {
+            players.p.nrg += 0;
         }
         
         //Pellets
         
         //Stamina
-        if(players.p.sta != players.p.max_sta){
+        if(players.p.max_sta > players.p.sta && players.p.max_sta - players.p.sta >= 5){
             players.p.sta += 5;
+        } else if(players.p.max_sta - players.p.sta < 5){
+            players.p.sta += (players.p.max_sta - players.p.sta);
+        } else {
+            players.p.sta += 0;
         }
         update_stats_two(players);
     }, 1000);
@@ -231,7 +247,7 @@ function update_stats(){
     }
 }
 
-window.onmousemove = window.onmouseover = move_cell;
+window.onmousemove = move_cell;
 window.onkeydown = window.onmousedown = game;
 
 function move_cell(e){
@@ -249,7 +265,7 @@ function move_cell(e){
             offsetX = -3;
             players.p.x += offsetX;
         } else {
-            players.p.x = offsetX;  
+            players.p.x += offsetX;  
         }
 
         if(offsetY > 3){
@@ -259,8 +275,10 @@ function move_cell(e){
             offsetY = -3;
             players.p.y += offsetY;
         } else {
-            players.p.y = offsetY;  
+            players.p.y += offsetY;  
         }
+        //players.p.x = mouseX;
+        //players.p.y = mouseY;
         redraw(c, e);
     }
 }
