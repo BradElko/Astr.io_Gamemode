@@ -122,7 +122,7 @@ function get_circle(c){
         players.p.ctx.fill();  
     } else {
         players.p.ctx.save();
-        players.p.ctx.translate(players.p.magX,players.p.magY);
+        players.p.ctx.translate(players.p.x,players.p.y);
         players.rc.ctx.beginPath();
         players.p.ctx.arc(0,0,players.p.r,0,2*Math.PI);
         players.rc.ctx.closePath();
@@ -264,14 +264,33 @@ window.onkeydown = window.onmousedown = moves_list;
 function move_cell(e){
     if(players.p.movable){
         var c = document.getElementById("canvas");
+        players.p.moved = true;  
         var mouseX = e.clientX;
         var mouseY = e.clientY;
         var offsetX = (e.clientX - players.p.x);
         var offsetY = (e.clientY - players.p.y);
-        players.p.moved = true;
-        
-        players.p.magX = offsetX;
-        players.p.magY = offsetY;
+        var dist = Math.sqrt((offsetX * offsetX) + (offsetY * offsetY));
+        if(dist > 3){
+            var mag = 3;
+            var magX = (3 * offsetX) / dist;
+            var magY = (3 * offsetY) / dist;
+
+            players.p.magX = magX * (players.p.sta / players.p.max_sta);
+            players.p.magY = magY * (players.p.sta / players.p.max_sta);
+
+            players.p.x += players.p.magX;
+            players.p.y += players.p.magY; 
+        } else {
+            var magX = offsetX;
+            var magY = offsetY;
+            
+            players.p.magX = magX * (players.p.sta / players.p.max_sta);
+            players.p.magY = magY * (players.p.sta / players.p.max_sta);
+
+            players.p.x += players.p.magX;
+            players.p.y += players.p.magY; 
+        }
+               
         redraw(c, e);
     }
 }
