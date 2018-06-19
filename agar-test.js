@@ -44,6 +44,7 @@ var food;
 var food_locations = [];
 var i = 0;
 var got_stats = false;
+var mousepos = {};
 
 function setup(c){
     players = {
@@ -52,6 +53,8 @@ function setup(c){
             y : Math.floor(Math.random() * c.height) + (Math.floor(Math.random() * 100) / 100),
             magX : 0,
             magY : 0,
+            transX : 0,
+            transY : 0,
             r : 32,
             hp : 100,
             max_hp : 100,
@@ -112,21 +115,28 @@ function setup(c){
     get_circle(c);
     random_cell(c);
     update_stats();
+    constant_redraw(c);
 }
 
 function get_circle(c){
     if(!players.p.moved){
-        players.rc.ctx.beginPath();
+        players.p.ctx.beginPath();
         players.p.ctx.arc(players.p.x,players.p.y,players.p.r,0,2*Math.PI);
-        players.rc.ctx.closePath();
+        players.p.ctx.closePath();
         players.p.ctx.fillStyle = "rgba(255, 255, 255," + players.p.opacity + ")";
         players.p.ctx.fill();  
     } else {
         players.p.ctx.save();
-        players.p.ctx.translate(players.p.x,players.p.y);
-        players.rc.ctx.beginPath();
+        if(players.p.transX != 0 && players.p.transY != 0){
+            players.p.ctx.translate(players.p.transX,players.p.transY);
+        } else {
+            players.p.ctx.translate(players.p.x,players.p.y);
+        }
+        players.p.x = players.p.transX;
+        players.p.y = players.p.transY;
+        players.p.ctx.beginPath();
         players.p.ctx.arc(0,0,players.p.r,0,2*Math.PI);
-        players.rc.ctx.closePath();
+        players.p.ctx.closePath();
         players.p.ctx.fillStyle = "rgba(255, 255, 255," + players.p.opacity + ")";
         players.p.ctx.fill();  
         players.p.ctx.restore();
@@ -259,16 +269,23 @@ function update_stats(){
     }
 }
 
-window.onmousemove = move_cell;
+function constant_redraw(c){
+    setInterval(function(){
+        players.p.moved = true;
+        redraw(c);
+    }, 10);
+}
+window.onmousemove = window.onmouseover = move_cell;
 window.onkeydown = window.onmousedown = moves_list;
 
 function move_cell(e){
     if(players.p.movable){
         var c = document.getElementById("canvas");
-        var mouseX = e.clientX;
-        var mouseY = e.clientY;
-        var offsetX = (e.clientX - players.p.x);
-        var offsetY = (e.clientY - players.p.y);
+        players.p.moved = true;
+        mousepos.x = e.clientX;
+        mousepos.y = e.clientY;
+        var offsetX = (mousepos.x - players.p.x);
+        var offsetY = (mousepos.y - players.p.y);
         var dist = Math.sqrt((offsetX * offsetX) + (offsetY * offsetY));
         if(dist > 3){
             var mag = 3;
@@ -277,28 +294,28 @@ function move_cell(e){
 
             players.p.magX = magX * (players.p.sta / players.p.max_sta);
             players.p.magY = magY * (players.p.sta / players.p.max_sta);
-
-            players.p.x += players.p.magX;
-            players.p.y += players.p.magY; 
+            
+            players.p.transX = players.p.x + players.p.magX;
+            players.p.transY = players.p.y + players.p.magY;
         } else {
             var magX = offsetX;
             var magY = offsetY;
             
             players.p.magX = magX * (players.p.sta / players.p.max_sta);
             players.p.magY = magY * (players.p.sta / players.p.max_sta);
-
-            players.p.x += players.p.magX;
-            players.p.y += players.p.magY; 
+            
+            players.p.transX = players.p.x + players.p.magX;
+            players.p.transY = players.p.y + players.p.magY;
         }
-        redraw(c, e);
+        redraw(c);
+        moves_list(e);
     }
 }
 
-function redraw(c, e){
+function redraw(c){
     spawn_food(c);
     get_circle(c);
     random_cell(c);
-    moves_list(e);
 }
 
 function moves_list(e){
