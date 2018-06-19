@@ -1,3 +1,4 @@
+"use strict";
 window.onload = canvas;
 window.onresize = canvas_resized;
 
@@ -264,7 +265,6 @@ window.onkeydown = window.onmousedown = moves_list;
 function move_cell(e){
     if(players.p.movable){
         var c = document.getElementById("canvas");
-        players.p.moved = true;  
         var mouseX = e.clientX;
         var mouseY = e.clientY;
         var offsetX = (e.clientX - players.p.x);
@@ -290,7 +290,6 @@ function move_cell(e){
             players.p.x += players.p.magX;
             players.p.y += players.p.magY; 
         }
-               
         redraw(c, e);
     }
 }
