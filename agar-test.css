@@ -1,0 +1,65 @@
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0px;
+    overflow:hidden;
+}
+
+canvas{
+    background-color:black;
+    border:2px solid red;
+}
+
+#player_stats{
+    position:absolute;
+    z-index:1001;
+    top:5px;
+    left:5px;
+    width:150px;
+    height:100px;
+    padding:4px 24px;
+    border:1px solid white;
+}
+
+#player_stats > div{
+    position:relative;
+    text-align:center;
+    height:15px;
+    width:100px;
+}
+
+#health_number, #energy_number, #pellets_number, #stamina_number{
+    color:white;
+    padding:0px;
+    margin:0px;
+    line-height:15px;
+    font-size:14px;
+    font-family:Arial;
+}
+
+#health_stat, #energy_stat, #pellet_stat{
+    margin-bottom:10px;
+}
+
+#health, #energy, #pellets, #stamina{
+    float:left;
+    height:15px;
+}
+
+#health{
+    background-color:green;
+}
+
+#energy{
+    background-color:blue;
+}
+
+#pellets{
+    background-color:red;
+}
+
+#stamina{
+    background-color:orange;
+}
