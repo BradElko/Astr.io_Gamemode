@@ -389,7 +389,7 @@ function move_list(e){
                         get_circle(c);
                         moves.c3 = false;
                         players.p.movable = true;
-                        window.onkeydown = window.onmousedown = game;
+                        window.onkeydown = window.onmousedown = move_list;
                     }
                 }, 10);
             } else if (tp.badClick){
