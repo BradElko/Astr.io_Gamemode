@@ -62,6 +62,7 @@ function setup(c){
             sta : 100,
             max_sta : 100,
             movable : true,
+            moved : false,
             opacity : 1,
             ctx : c.getContext("2d")
         },
@@ -106,18 +107,29 @@ function setup(c){
         fc : false
     };
     
+    create_food(c);
     get_circle(c);
     random_cell(c);
-    create_food(c);
     update_stats();
 }
 
 function get_circle(c){
-    players.p.ctx.beginPath();
-    players.p.ctx.arc(players.p.x,players.p.y,players.p.r,0,2*Math.PI);
-    players.p.ctx.closePath();
-    players.p.ctx.fillStyle = "rgba(255, 255, 255," + players.p.opacity + ")";
-    players.p.ctx.fill();
+    if(!players.p.moved){
+        players.rc.ctx.beginPath();
+        players.p.ctx.arc(players.p.x,players.p.y,players.p.r,0,2*Math.PI);
+        players.rc.ctx.closePath();
+        players.p.ctx.fillStyle = "rgba(255, 255, 255," + players.p.opacity + ")";
+        players.p.ctx.fill();  
+    } else {
+        players.p.ctx.save();
+        players.p.ctx.translate(players.p.magX,players.p.magY);
+        players.rc.ctx.beginPath();
+        players.p.ctx.arc(0,0,players.p.r,0,2*Math.PI);
+        players.rc.ctx.closePath();
+        players.p.ctx.fillStyle = "rgba(255, 255, 255," + players.p.opacity + ")";
+        players.p.ctx.fill();  
+        players.p.ctx.restore();
+    }
 }
 
 function random_cell(c){
@@ -178,8 +190,6 @@ function spawn_food(c){
         ctx.fillStyle = 'white';
         ctx.fill();
     }   
-    random_cell(c);
-    get_circle(c);
 }
 
 function update_stats(){
@@ -249,7 +259,7 @@ function update_stats(){
 }
 
 window.onmousemove = move_cell;
-window.onkeydown = window.onmousedown = move_list;
+window.onkeydown = window.onmousedown = moves_list;
 
 function move_cell(e){
     if(players.p.movable){
@@ -258,28 +268,10 @@ function move_cell(e){
         var mouseY = e.clientY;
         var offsetX = (e.clientX - players.p.x);
         var offsetY = (e.clientY - players.p.y);
-
-        if(offsetX > 3){
-            offsetX = 3;
-            players.p.x += offsetX;
-        } else if(offsetX < -3) {
-            offsetX = -3;
-            players.p.x += offsetX;
-        } else {
-            players.p.x += offsetX;  
-        }
-
-        if(offsetY > 3){
-            offsetY = 3;
-            players.p.y += offsetY;
-        } else if(offsetY< -3) {
-            offsetY = -3;
-            players.p.y += offsetY;
-        } else {
-            players.p.y += offsetY;  
-        }
-        //players.p.x = mouseX;
-        //players.p.y = mouseY;
+        players.p.moved = true;
+        
+        players.p.magX = offsetX;
+        players.p.magY = offsetY;
         redraw(c, e);
     }
 }
@@ -288,18 +280,18 @@ function redraw(c, e){
     spawn_food(c);
     get_circle(c);
     random_cell(c);
-    move_list(e);
+    moves_list(e);
 }
 
-function move_list(e){
+function moves_list(e){
     var c = document.getElementById("canvas");
     var ctx = c.getContext("2d");
     //Teleport Key 3 
     if(((e.keyCode == 51 || e.which == 51) || moves.c3) && players.p.nrg >= 60 && !moves.c4 && !moves.c5){
-        ctx.clearRect(0, 0, c.width, c.height);
         spawn_food(c);
-        random_cell(c);
         get_circle(c);
+        random_cell(c);
+        
         tp.o.ctx.beginPath();
         tp.o.ctx.arc(players.p.x,players.p.y,tp.o.r,0,2*Math.PI);
         tp.o.ctx.closePath();
@@ -328,7 +320,7 @@ function move_list(e){
                 random_cell(c);
                 get_circle(c);
                 moves.c3 = false;
-                window.onkeydown = window.onmousedown = game;
+                window.onkeydown = window.onmousedown = moves_list;
             }
         }
 
@@ -380,16 +372,12 @@ function move_list(e){
                         players.p.x = e.clientX;
                         players.p.y = e.clientY;
                         players.p.r = radius*.95;
-                        tp.o.x = players.p.x;
-                        tp.o.y = players.p.y;
-                        tp.i.x = players.p.x;
-                        tp.i.y = players.p.y;
-                        tp.i.r = players.p.r;
+                        spawn_food(c);
                         random_cell(c);
                         get_circle(c);
                         moves.c3 = false;
                         players.p.movable = true;
-                        window.onkeydown = window.onmousedown = move_list;
+                        window.onkeydown = window.onmousedown = moves_list;
                     }
                 }, 10);
             } else if (tp.badClick){
