@@ -45,7 +45,7 @@ var foodMade = 0;
 var got_stats = false;
 var mousepos;
 var moveWithoutMouse;
-var getMasses = [];
+var getMasses = {};
 
 function setup(c){
     players = {
@@ -74,6 +74,7 @@ function setup(c){
             sta : 100,
             max_sta : 100,
             movable : true,
+            dead : false,
             opacity : 1,
             ctx : c.getContext("2d")
         },
@@ -92,6 +93,7 @@ function setup(c){
             pelMode : "norm",
             sta : 100,
             max_sta : 100,
+            dead : false,
             ctx : c.getContext("2d")
         }
     };
@@ -122,6 +124,10 @@ function setup(c){
     mousepos = {
         x : players.p.x,
         y : players.p.y
+    }
+    getMasses = {
+        p : 0,
+        rc : 0
     }
     
     init(c);
@@ -204,32 +210,37 @@ function spawn_food(c){
         ctx.closePath();
         ctx.fillStyle = 'white';
         ctx.fill();
-    }   
-}
-
-function get_circle(c){ 
-    players.p.ctx.save(); 
-    if(players.p.magX != 0 && players.p.magY != 0 && players.p.movable){
-        players.p.ctx.translate(players.p.transX,players.p.transY);
-        players.p.x = players.p.transX;
-        players.p.y = players.p.transY;
-    } else {
-        players.p.ctx.translate(players.p.x,players.p.y);
     }
-    players.p.ctx.beginPath();
-    players.p.ctx.arc(0,0,players.p.r,0,2*Math.PI);
-    players.p.ctx.closePath();
-    players.p.ctx.fillStyle = "rgba("+players.p.red+","+players.p.green+","+players.p.blue+","+players.p.opacity+")";
-    players.p.ctx.fill();  
-    players.p.ctx.restore();
+    top_cell(c);
 }
 
-function random_cell(c){  
-    players.rc.ctx.beginPath();
-    players.rc.ctx.arc(players.rc.x,players.rc.y,players.rc.r,0,2*Math.PI)
-    players.rc.ctx.closePath();
-    players.rc.ctx.fillStyle = "blue";
-    players.rc.ctx.fill();   
+function get_circle(c){
+    if(!players.p.dead){
+        players.p.ctx.save(); 
+        if(players.p.magX != 0 && players.p.magY != 0 && players.p.movable){
+            players.p.ctx.translate(players.p.transX,players.p.transY);
+            players.p.x = players.p.transX;
+            players.p.y = players.p.transY;
+        } else {
+            players.p.ctx.translate(players.p.x,players.p.y);
+        }
+        players.p.ctx.beginPath();
+        players.p.ctx.arc(0,0,players.p.r,0,2*Math.PI);
+        players.p.ctx.closePath();
+        players.p.ctx.fillStyle = "rgba("+players.p.red+","+players.p.green+","+players.p.blue+","+players.p.opacity+")";
+        players.p.ctx.fill();  
+        players.p.ctx.restore(); 
+    }
+}
+
+function random_cell(c){
+    if(!players.rc.dead){
+        players.rc.ctx.beginPath();
+        players.rc.ctx.arc(players.rc.x,players.rc.y,players.rc.r,0,2*Math.PI)
+        players.rc.ctx.closePath();
+        players.rc.ctx.fillStyle = "blue";
+        players.rc.ctx.fill();    
+    }  
 }
 
 function update_stats(){
@@ -366,6 +377,7 @@ function eat_pellets(c){
             players.p.foodcount++;
             if(players.p.foodcount % players.p.storageCount == 0 && players.p.max_pel > players.p.pel){
                 players.p.pel++;
+                players.p.foodcount=0;
             } else {
                 players.p.area += food.area;
                 players.p.r = Math.sqrt(players.p.area/Math.PI);  
@@ -373,20 +385,41 @@ function eat_pellets(c){
             foodMade--;
             food.created = false;
             create_food(c);
-            redraw(c);
         }
     }
 }
 
+function eat_players(c){
+    if(players.p.ctx.isPointInPath(players.rc.x,players.rc.y) && players.p.area >= players.rc.area * 1.25 && !players.rc.dead){
+        players.p.area += players.rc.area;
+        players.p.r = Math.sqrt(players.p.area/Math.PI);
+        players.rc.dead = true;
+        
+        redraw(c);
+    }
+}
+
 function top_cell(c){
-    
+    getMasses = {
+        p : players.p.area,
+        rc : players.rc.area
+    };
+    if(getMasses.p > getMasses.rc){
+        random_cell(c);
+        get_circle(c);
+        eat_pellets(c);
+        eat_players(c);
+    } else {
+        get_circle(c);
+        eat_pellets(c);
+        eat_players(c);
+        random_cell(c);
+    }
 }
 
 function redraw(c){
     spawn_food(c);
-    get_circle(c);
-    eat_pellets(c);
-    random_cell(c);
+    top_cell(c);
 }
 
 function moves_list(e){
