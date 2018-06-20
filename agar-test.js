@@ -44,6 +44,7 @@ var i = 0;
 var got_stats = false;
 var mousepos;
 var moveWithoutMouse;
+var getMasses = [];
 
 function setup(c){
     players = {
@@ -105,9 +106,6 @@ function setup(c){
             r : 200,
             ctx : c.getContext("2d")   
         },
-        i : {
-            ctx : c.getContext("2d")  
-        }
     };
     
     food = {
@@ -125,8 +123,25 @@ function setup(c){
     }
     
     init(c);
+    create_food(c);
+    get_circle(c);
+    random_cell(c);
     update_stats();
     constant_movement(c);
+}
+
+function init(c){
+    //Food
+    food.area *= food.sizer;
+    food.r = Math.sqrt(food.area/Math.PI);
+    
+    //Player
+    players.p.area *= players.p.sizer;
+    players.p.r = Math.sqrt(players.p.area/Math.PI);
+    
+    //Random
+    players.rc.area *= players.rc.sizer;
+    players.rc.r = Math.sqrt(players.rc.area/Math.PI);
 }
 
 function create_food(c){
@@ -181,25 +196,7 @@ function spawn_food(c){
     }   
 }
 
-function init(c){
-    //Food
-    food.area *= food.sizer;
-    food.r = Math.sqrt(food.area/Math.PI);
-    create_food(c);
-    
-    //Player
-    players.p.area *= players.p.sizer;
-    players.p.r = Math.sqrt(players.p.area/Math.PI);
-    get_circle(c);
-    
-    //Random Cell
-    players.rc.area *= players.rc.sizer;
-    players.rc.r = Math.sqrt(players.rc.area/Math.PI);
-    random_cell(c);
-    
-}
-
-function get_circle(c){
+function get_circle(c){ 
     players.p.ctx.save(); 
     if(players.p.magX != 0 && players.p.magY != 0 && players.p.movable){
         players.p.ctx.translate(players.p.transX,players.p.transY);
@@ -211,12 +208,12 @@ function get_circle(c){
     players.p.ctx.beginPath();
     players.p.ctx.arc(0,0,players.p.r,0,2*Math.PI);
     players.p.ctx.closePath();
-    players.p.ctx.fillStyle = "rgba("+players.p.red+","+players.p.green+","+players.p.blue+","+ players.p.opacity +")";
+    players.p.ctx.fillStyle = "rgba("+players.p.red+","+players.p.green+","+players.p.blue+","+players.p.opacity+")";
     players.p.ctx.fill();  
     players.p.ctx.restore();
 }
 
-function random_cell(c){
+function random_cell(c){  
     players.rc.ctx.beginPath();
     players.rc.ctx.arc(players.rc.x,players.rc.y,players.rc.r,0,2*Math.PI)
     players.rc.ctx.closePath();
@@ -367,12 +364,6 @@ function moves_list(e){
         tp.o.ctx.strokeStyle = "blue";
         tp.o.ctx.lineWidth = 3;
         tp.o.ctx.stroke();
-
-        tp.i.ctx.fillStyle="rgba("+players.p.red+","+players.p.green+","+players.p.blue+","+ players.p.opacity +")";
-        tp.i.ctx.beginPath();
-        tp.i.ctx.arc(players.p.x,players.p.y,players.p.r,0,2*Math.PI);
-        tp.i.ctx.closePath();
-        tp.i.ctx.fill();
         
         window.onkeydown = tpKD;
         window.onmousedown = tpMD;
@@ -394,13 +385,13 @@ function moves_list(e){
                 tp.noClick = true;
             }
             get_circle(c);
-            if(players.p.ctx.isPointInPath(players.rc.x,players.rc.y)){
+            if(players.p.ctx.isPointInPath(players.rc.x,players.rc.y) || players.p.ctx.isPointInPath(e.clientX,e.clientY)){
                 tp.noClick = true;
             }
             tp.o.ctx.beginPath();
             tp.o.ctx.arc(players.p.x,players.p.y,tp.o.r,0,2*Math.PI);
             tp.o.ctx.closePath();
-            tp.o.ctx.fillStyle ="rgba("+players.p.red+","+players.p.green+","+players.p.blue+","+ players.p.opacity +")";
+            tp.o.ctx.fillStyle ="rgba("+players.p.red+","+players.p.green+","+players.p.blue+","+7.5+")";
             tp.o.ctx.fill();
             tp.o.ctx.strokeStyle = "blue";
             tp.o.ctx.lineWidth = 3;
@@ -411,33 +402,26 @@ function moves_list(e){
             if(!tp.o.ctx.isPointInPath(e.clientX,e.clientY)){
                 tp.noClick = true;
             }
-            tp.i.ctx.fillStyle='rgba(255,255,255,0)';
-            tp.i.ctx.beginPath();
-            tp.i.ctx.arc(players.p.x,players.p.y,players.p.r,0,2*Math.PI);
-            tp.i.ctx.closePath();
-            tp.i.ctx.fill();
-            if(tp.i.ctx.isPointInPath(e.clientX,e.clientY)){
-                tp.noClick = true;
-            }
             if((e.which == 1 || e.button == 0) && moves.c3 && !tp.noClick){
                 players.p.movable = false;
                 players.p.nrg -= 60;
                 clearInterval(moveWithoutMouse);
                 tp.cooldown = 30000;
                 tpCD();
-                var radius = players.p.r;
-                var getRadiusIncrement = players.p.r/300;
+                var area = players.p.area;
+                var getArealIncrement = players.p.area/300;
                 var getTimer = setInterval(function(){
-                    if(players.p.r>= 0){
-                        ctx.clearRect(0, 0, c.width, c.height);
+                    if(players.p.area>= 0){
                         redraw(c);
-                        players.p.r -= getRadiusIncrement;
+                        players.p.area -= getArealIncrement;
+                        players.p.r = Math.sqrt(players.p.area/Math.PI);
                     } else {
                         moves.c3 = false;
                         clearInterval(getTimer);
                         players.p.x = e.clientX;
                         players.p.y = e.clientY;
-                        players.p.r = radius*.95;
+                        players.p.area = area*.95;
+                        players.p.r = Math.sqrt(players.p.area/Math.PI);
                         redraw(c);
                         players.p.movable = true;
                         constant_movement(c);
