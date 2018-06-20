@@ -54,7 +54,9 @@ function setup(c){
             magY : 0,
             transX : 0,
             transY : 0,
-            r : 32,
+            area : 500,
+            sizer : 15,
+            r : 0,
             red : 0,
             green : 128,
             blue : 0,
@@ -75,7 +77,9 @@ function setup(c){
         rc : {
             x : Math.floor(Math.random() * c.width) + (Math.floor(Math.random() * 100) / 100),
             y : Math.floor(Math.random() * c.height) + (Math.floor(Math.random() * 100) / 100),
-            r : 32,
+            area : 500,
+            sizer : 15,
+            r : 0,
             hp : 100,
             max_hp : 100,
             nrg : 0,
@@ -109,7 +113,9 @@ function setup(c){
     food = {
         x : Math.floor(Math.random() * c.width) + (Math.floor(Math.random() * 100) / 100),
         y : Math.floor(Math.random() * c.height) + (Math.floor(Math.random() * 100) / 100),
-        r : 3,
+        area : 1,
+        sizer : 15,
+        r : 0,
         spawn : true,
         fc : false
     };
@@ -118,9 +124,7 @@ function setup(c){
         y : players.p.y
     }
     
-    create_food(c);
-    get_circle(c);
-    random_cell(c);
+    init(c);
     update_stats();
     constant_movement(c);
 }
@@ -177,8 +181,26 @@ function spawn_food(c){
     }   
 }
 
+function init(c){
+    //Food
+    food.area *= food.sizer;
+    food.r = Math.sqrt(food.area/Math.PI);
+    create_food(c);
+    
+    //Player
+    players.p.area *= players.p.sizer;
+    players.p.r = Math.sqrt(players.p.area/Math.PI);
+    get_circle(c);
+    
+    //Random Cell
+    players.rc.area *= players.rc.sizer;
+    players.rc.r = Math.sqrt(players.rc.area/Math.PI);
+    random_cell(c);
+    
+}
+
 function get_circle(c){
-    players.p.ctx.save();
+    players.p.ctx.save(); 
     if(players.p.magX != 0 && players.p.magY != 0 && players.p.movable){
         players.p.ctx.translate(players.p.transX,players.p.transY);
         players.p.x = players.p.transX;
