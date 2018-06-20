@@ -32,9 +32,7 @@ function canvas_resized(){
     c.height = wh;
     c.tabIndex = 1000;
     
-    spawn_food(c);
-    get_circle(c);
-    random_cell(c);
+    redraw(c);
 }
 
 var players;
@@ -45,6 +43,7 @@ var food_locations = [];
 var i = 0;
 var got_stats = false;
 var mousepos = {};
+var moveWithoutMouse;
 
 function setup(c){
     players = {
@@ -67,6 +66,7 @@ function setup(c){
             max_sta : 100,
             movable : true,
             moved : false,
+            mwm : false,
             opacity : 1,
             ctx : c.getContext("2d")
         },
@@ -115,40 +115,7 @@ function setup(c){
     get_circle(c);
     random_cell(c);
     update_stats();
-    constant_redraw(c);
-}
-
-function get_circle(c){
-    if(!players.p.moved){
-        players.p.ctx.beginPath();
-        players.p.ctx.arc(players.p.x,players.p.y,players.p.r,0,2*Math.PI);
-        players.p.ctx.closePath();
-        players.p.ctx.fillStyle = "rgba(255, 255, 255," + players.p.opacity + ")";
-        players.p.ctx.fill();  
-    } else {
-        players.p.ctx.save();
-        if(players.p.transX != 0 && players.p.transY != 0){
-            players.p.ctx.translate(players.p.transX,players.p.transY);
-        } else {
-            players.p.ctx.translate(players.p.x,players.p.y);
-        }
-        players.p.x = players.p.transX;
-        players.p.y = players.p.transY;
-        players.p.ctx.beginPath();
-        players.p.ctx.arc(0,0,players.p.r,0,2*Math.PI);
-        players.p.ctx.closePath();
-        players.p.ctx.fillStyle = "rgba(255, 255, 255," + players.p.opacity + ")";
-        players.p.ctx.fill();  
-        players.p.ctx.restore();
-    }
-}
-
-function random_cell(c){
-    players.rc.ctx.beginPath();
-    players.rc.ctx.arc(players.rc.x,players.rc.y,players.rc.r,0,2*Math.PI)
-    players.rc.ctx.closePath();
-    players.rc.ctx.fillStyle = "blue";
-    players.rc.ctx.fill();   
+    constant_movement(c);
 }
 
 function create_food(c){
@@ -201,6 +168,32 @@ function spawn_food(c){
         ctx.fillStyle = 'white';
         ctx.fill();
     }   
+}
+
+function get_circle(c){
+    players.p.ctx.save();
+    if(players.p.transX != 0 && players.p.transY != 0 && players.p.movable){
+        player_movement();
+        players.p.ctx.translate(players.p.transX,players.p.transY);
+        players.p.x = players.p.transX;
+        players.p.y = players.p.transY;
+    } else {
+        players.p.ctx.translate(players.p.x,players.p.y);
+    }
+    players.p.ctx.beginPath();
+    players.p.ctx.arc(0,0,players.p.r,0,2*Math.PI);
+    players.p.ctx.closePath();
+    players.p.ctx.fillStyle = "rgba(255, 255, 255," + players.p.opacity + ")";
+    players.p.ctx.fill();  
+    players.p.ctx.restore();
+}
+
+function random_cell(c){
+    players.rc.ctx.beginPath();
+    players.rc.ctx.arc(players.rc.x,players.rc.y,players.rc.r,0,2*Math.PI)
+    players.rc.ctx.closePath();
+    players.rc.ctx.fillStyle = "blue";
+    players.rc.ctx.fill();   
 }
 
 function update_stats(){
@@ -269,44 +262,50 @@ function update_stats(){
     }
 }
 
-function constant_redraw(c){
-    setInterval(function(){
-        players.p.moved = true;
-        redraw(c);
-    }, 10);
+function constant_movement(c){
+    if(players.p.movable){
+        moveWithoutMouse = setInterval(function(){
+            redraw(c);
+            moves_list(mousepos);
+        }, 10);  
+    }
 }
 window.onmousemove = window.onmouseover = move_cell;
 window.onkeydown = window.onmousedown = moves_list;
 
+function player_movement(){
+    var offsetX = (mousepos.x - players.p.x);
+    var offsetY = (mousepos.y - players.p.y);
+    var dist = Math.sqrt((offsetX * offsetX) + (offsetY * offsetY));
+    if(dist > 2){
+        var mag = 2;
+        var magX = (2 * offsetX) / dist;
+        var magY = (2 * offsetY) / dist;
+
+        players.p.magX = magX * (players.p.sta / players.p.max_sta);
+        players.p.magY = magY * (players.p.sta / players.p.max_sta);
+
+        players.p.transX = players.p.x + players.p.magX;
+        players.p.transY = players.p.y + players.p.magY;
+    } else {
+        var magX = offsetX;
+        var magY = offsetY;
+
+        players.p.magX = magX * (players.p.sta / players.p.max_sta);
+        players.p.magY = magY * (players.p.sta / players.p.max_sta);
+
+        players.p.transX = players.p.x + players.p.magX;
+        players.p.transY = players.p.y + players.p.magY;
+    }
+}
+
 function move_cell(e){
     if(players.p.movable){
         var c = document.getElementById("canvas");
-        players.p.moved = true;
+        players.p.mvm = true;
         mousepos.x = e.clientX;
         mousepos.y = e.clientY;
-        var offsetX = (mousepos.x - players.p.x);
-        var offsetY = (mousepos.y - players.p.y);
-        var dist = Math.sqrt((offsetX * offsetX) + (offsetY * offsetY));
-        if(dist > 3){
-            var mag = 3;
-            var magX = (3 * offsetX) / dist;
-            var magY = (3 * offsetY) / dist;
-
-            players.p.magX = magX * (players.p.sta / players.p.max_sta);
-            players.p.magY = magY * (players.p.sta / players.p.max_sta);
-            
-            players.p.transX = players.p.x + players.p.magX;
-            players.p.transY = players.p.y + players.p.magY;
-        } else {
-            var magX = offsetX;
-            var magY = offsetY;
-            
-            players.p.magX = magX * (players.p.sta / players.p.max_sta);
-            players.p.magY = magY * (players.p.sta / players.p.max_sta);
-            
-            players.p.transX = players.p.x + players.p.magX;
-            players.p.transY = players.p.y + players.p.magY;
-        }
+        player_movement();
         redraw(c);
         moves_list(e);
     }
@@ -323,9 +322,7 @@ function moves_list(e){
     var ctx = c.getContext("2d");
     //Teleport Key 3 
     if(((e.keyCode == 51 || e.which == 51) || moves.c3) && players.p.nrg >= 60 && !moves.c4 && !moves.c5){
-        spawn_food(c);
-        get_circle(c);
-        random_cell(c);
+        redraw(c);
         
         tp.o.ctx.beginPath();
         tp.o.ctx.arc(players.p.x,players.p.y,tp.o.r,0,2*Math.PI);
@@ -351,9 +348,6 @@ function moves_list(e){
         function tpKD(e){
             if((e.keyCode == 51 || e.which == 51) && moves.c3){
                 ctx.clearRect(0, 0, c.width, c.height);
-                spawn_food(c);
-                random_cell(c);
-                get_circle(c);
                 moves.c3 = false;
                 window.onkeydown = window.onmousedown = moves_list;
             }
@@ -393,25 +387,23 @@ function moves_list(e){
             if((e.which == 1 || e.button == 0) && moves.c3 && !tp.badClick){
                 players.p.movable = false;
                 players.p.nrg -= 60;
+                clearInterval(moveWithoutMouse);
                 var radius = players.p.r;
                 var getRadiusIncrement = players.p.r/300;
                 var getTimer = setInterval(function(){
                     if(players.p.r>= 0){
                         ctx.clearRect(0, 0, c.width, c.height);
-                        spawn_food(c);
-                        random_cell(c);
-                        get_circle(c);
+                        redraw(c);
                         players.p.r -= getRadiusIncrement;
                     } else {
                         clearInterval(getTimer);
                         players.p.x = e.clientX;
                         players.p.y = e.clientY;
                         players.p.r = radius*.95;
-                        spawn_food(c);
-                        random_cell(c);
-                        get_circle(c);
                         moves.c3 = false;
                         players.p.movable = true;
+                        redraw(c);
+                        constant_movement(c);
                         window.onkeydown = window.onmousedown = moves_list;
                     }
                 }, 10);
