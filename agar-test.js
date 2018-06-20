@@ -40,7 +40,7 @@ var moves;
 var tp;
 var food;
 var food_locations = [];
-var i = 0;
+var foodMade = 0;
 var got_stats = false;
 var mousepos;
 var moveWithoutMouse;
@@ -115,7 +115,7 @@ function setup(c){
         sizer : 15,
         r : 0,
         spawn : true,
-        fc : false
+        created : false
     };
     mousepos = {
         x : players.p.x,
@@ -145,8 +145,8 @@ function init(c){
 }
 
 function create_food(c){
-    if(!food.fc){
-        for(i; i < 50; i++){
+    if(!food.created){
+        for(foodMade; foodMade < 50; foodMade++){
             var ctx = c.getContext("2d");
             ctx.clearRect(0, 0, c.width, c.height);
 
@@ -171,11 +171,11 @@ function create_food(c){
                 food.x = Math.floor(Math.random() * c.width) + (Math.floor(Math.random() * 100) / 100);
                 food.y = Math.floor(Math.random() * c.height) + (Math.floor(Math.random() * 100) / 100);
             } else {
-                i--;
+                foodMade--;
                 food.spawn = true;
             }     
         }
-        food.fc = true;
+        food.created = true;
         spawn_food(c);  
     } else {
        spawn_food(c); 
@@ -345,9 +345,24 @@ function move_cell(e){
     }
 }
 
+function eat_pellets(c){
+    for(var i = 0; i < 50; i++){
+        if(players.p.ctx.isPointInPath(food_locations[i].x,food_locations[i].y) && players.p.area >= food.area * 1.25){
+            food_locations.splice(i,1);
+            players.p.area += food.area;
+            players.p.r = Math.sqrt(players.p.area/Math.PI);
+            food.created = false;
+            foodMade = 49;
+            create_food(c);
+            redraw(c);
+        }
+    }
+}
+
 function redraw(c){
     spawn_food(c);
     get_circle(c);
+    eat_pellets(c);
     random_cell(c);
 }
 
