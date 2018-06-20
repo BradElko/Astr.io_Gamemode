@@ -42,7 +42,7 @@ var food;
 var food_locations = [];
 var i = 0;
 var got_stats = false;
-var mousepos = {};
+var mousepos;
 var moveWithoutMouse;
 
 function setup(c){
@@ -112,6 +112,9 @@ function setup(c){
         spawn : true,
         fc : false
     };
+    mousepos = {
+        y : players.p.y
+    }
     
     create_food(c);
     get_circle(c);
@@ -175,7 +178,6 @@ function spawn_food(c){
 function get_circle(c){
     players.p.ctx.save();
     if(players.p.magX != 0 && players.p.magY != 0 && players.p.movable){
-        player_movement();
         players.p.ctx.translate(players.p.transX,players.p.transY);
         players.p.x = players.p.transX;
         players.p.y = players.p.transY;
@@ -267,6 +269,7 @@ function update_stats(){
 function constant_movement(c){
     if(players.p.movable){
         moveWithoutMouse = setInterval(function(){
+            player_movement(mousepos);
             redraw(c);
             moves_list(mousepos);
         }, 10);  
@@ -275,7 +278,8 @@ function constant_movement(c){
 window.onmousemove = window.onmouseover = move_cell;
 window.onkeydown = window.onmousedown = moves_list;
 
-function player_movement(){
+function player_movement(getmouse){
+    mousepos = getmouse;
     var offsetX = (mousepos.x - players.p.x);
     var offsetY = (mousepos.y - players.p.y);
     var dist = Math.sqrt((offsetX * offsetX) + (offsetY * offsetY));
@@ -304,11 +308,19 @@ function player_movement(){
 function move_cell(e){
     if(players.p.movable){
         var c = document.getElementById("canvas");
-        mousepos.x = e.clientX;
-        mousepos.y = e.clientY;
-        player_movement();
+        mousepos = {
+            x : e.clientX,
+            y : e.clientY
+        }
+        player_movement(e);
         redraw(c);
         moves_list(e);
+    } else {
+        mousepos = {
+            x : e.clientX,
+            y : e.clientY
+        }
+        player_movement(e);
     }
 }
 
