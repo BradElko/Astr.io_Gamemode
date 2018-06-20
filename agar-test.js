@@ -113,6 +113,7 @@ function setup(c){
         fc : false
     };
     mousepos = {
+        x : players.p.x,
         y : players.p.y
     }
     
