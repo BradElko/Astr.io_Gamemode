@@ -55,6 +55,9 @@ function setup(c){
             transX : 0,
             transY : 0,
             r : 32,
+            red : 0,
+            green : 128,
+            blue : 0,
             hp : 100,
             max_hp : 100,
             nrg : 0,
@@ -62,11 +65,10 @@ function setup(c){
             pel : 0,
             max_pel : 100,
             pelMode : "norm",
+            foodcount : 0,
             sta : 100,
             max_sta : 100,
             movable : true,
-            moved : false,
-            mwm : false,
             opacity : 1,
             ctx : c.getContext("2d")
         },
@@ -172,7 +174,7 @@ function spawn_food(c){
 
 function get_circle(c){
     players.p.ctx.save();
-    if(players.p.transX != 0 && players.p.transY != 0 && players.p.movable){
+    if(players.p.magX != 0 && players.p.magY != 0 && players.p.movable){
         player_movement();
         players.p.ctx.translate(players.p.transX,players.p.transY);
         players.p.x = players.p.transX;
@@ -183,7 +185,7 @@ function get_circle(c){
     players.p.ctx.beginPath();
     players.p.ctx.arc(0,0,players.p.r,0,2*Math.PI);
     players.p.ctx.closePath();
-    players.p.ctx.fillStyle = "rgba(255, 255, 255," + players.p.opacity + ")";
+    players.p.ctx.fillStyle = "rgba("+players.p.red+","+players.p.green+","+players.p.blue+","+ players.p.opacity +")";
     players.p.ctx.fill();  
     players.p.ctx.restore();
 }
@@ -302,7 +304,6 @@ function player_movement(){
 function move_cell(e){
     if(players.p.movable){
         var c = document.getElementById("canvas");
-        players.p.mvm = true;
         mousepos.x = e.clientX;
         mousepos.y = e.clientY;
         player_movement();
@@ -322,8 +323,6 @@ function moves_list(e){
     var ctx = c.getContext("2d");
     //Teleport Key 3 
     if(((e.keyCode == 51 || e.which == 51) || moves.c3) && players.p.nrg >= 60 && !moves.c4 && !moves.c5){
-        redraw(c);
-        
         tp.o.ctx.beginPath();
         tp.o.ctx.arc(players.p.x,players.p.y,tp.o.r,0,2*Math.PI);
         tp.o.ctx.closePath();
@@ -332,11 +331,8 @@ function moves_list(e){
         tp.o.ctx.strokeStyle = "blue";
         tp.o.ctx.lineWidth = 3;
         tp.o.ctx.stroke();
-        tp.o.ctx.save();
-        tp.o.ctx.clip();
-        tp.o.ctx.restore();
 
-        tp.i.ctx.fillStyle='white';
+        tp.i.ctx.fillStyle="rgba("+players.p.red+","+players.p.green+","+players.p.blue+","+ players.p.opacity +")";
         tp.i.ctx.beginPath();
         tp.i.ctx.arc(players.p.x,players.p.y,players.p.r,0,2*Math.PI);
         tp.i.ctx.closePath();
@@ -366,7 +362,7 @@ function moves_list(e){
             tp.o.ctx.beginPath();
             tp.o.ctx.arc(players.p.x,players.p.y,tp.o.r,0,2*Math.PI);
             tp.o.ctx.closePath();
-            tp.o.ctx.fillStyle = "rgba(173, 216, 230, 0.5)";
+            tp.o.ctx.fillStyle ="rgba("+players.p.red+","+players.p.green+","+players.p.blue+","+ players.p.opacity +")";
             tp.o.ctx.fill();
             tp.o.ctx.strokeStyle = "blue";
             tp.o.ctx.lineWidth = 3;
@@ -377,7 +373,7 @@ function moves_list(e){
             if(!tp.o.ctx.isPointInPath(e.clientX,e.clientY)){
                 tp.badClick = true;
             }
-            tp.i.ctx.fillStyle='white';
+            tp.i.ctx.fillStyle='rgba(255,255,255,0)';
             tp.i.ctx.beginPath();
             tp.i.ctx.arc(players.p.x,players.p.y,players.p.r,0,2*Math.PI);
             tp.i.ctx.closePath();
@@ -415,6 +411,7 @@ function moves_list(e){
             }
         }
         moves.c3 = true;
+    //Cloak Key 4
     } else if (((e.keyCode == 52 || e.which == 52) || moves.c4) && players.p.nrg >= 50 && !moves.c5 && !moves.c5){
         console.log("You have pressed 4");
     }
