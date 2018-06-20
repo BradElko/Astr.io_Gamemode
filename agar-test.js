@@ -40,6 +40,7 @@ var moves;
 var tp;
 var food;
 var food_locations = [];
+var updateCounter = 0;
 var foodMade = 0;
 var got_stats = false;
 var mousepos;
@@ -232,13 +233,12 @@ function random_cell(c){
 }
 
 function update_stats(){
+    var hn = document.getElementById("health_number");
+    var en = document.getElementById("energy_number");
+    var pn = document.getElementById("pellets_number");
+    var sn = document.getElementById("stamina_number");
     call_stats();
     function call_stats(){
-        var hn = document.getElementById("health_number");
-        var en = document.getElementById("energy_number");
-        var pn = document.getElementById("pellets_number");
-        var sn = document.getElementById("stamina_number");
-
         var setHealth = Math.round(players.p.max_hp * (players.p.hp / players.p.max_hp) * 100) / 100;
         health.style.width = setHealth + "px";
         players.p.hp = setHealth;
@@ -248,11 +248,6 @@ function update_stats(){
         energy.style.width = setEnergy + "px";
         players.p.nrg = setEnergy;
         en.innerHTML = players.p.nrg + "/" + players.p.max_nrg;
-
-        var setPellets = Math.round(players.p.max_pel * (players.p.pel / players.p.max_pel) * 100) / 100;
-        pellets.style.width = setPellets + "px";
-        players.p.pel = setPellets;
-        pn.innerHTML = players.p.pel + "/" + players.p.max_pel;
 
         var setStamina = Math.round(players.p.max_sta * (players.p.sta / players.p.max_sta) * 100) / 100;
         stamina.style.width = setStamina + "px";
@@ -280,6 +275,10 @@ function update_stats(){
         }
         
         //Pellets
+        var setPellets = Math.round(players.p.max_pel * (players.p.pel / players.p.max_pel) * 100) / 100;
+        pellets.style.width = setPellets + "px";
+        players.p.pel = setPellets;
+        pn.innerHTML = players.p.pel + "/" + players.p.max_pel;
         
         //Stamina
         if(players.p.max_sta > players.p.sta && players.p.max_sta - players.p.sta >= .05){
@@ -289,10 +288,15 @@ function update_stats(){
         } else {
             players.p.sta += 0;
         }
-        update_stats_two(players);
+        updateCounter += 10;
+        
+        if(updateCounter == 1000){
+            update_stats_two(players);  
+        }
     }, 10);
     
     function update_stats_two(players){
+        updateCounter = 0;
         call_stats();
     }
 }
@@ -360,7 +364,7 @@ function eat_pellets(c){
         if(players.p.ctx.isPointInPath(food_locations[i].x,food_locations[i].y) && players.p.area >= food.area * 1.25){
             food_locations.splice(i,1);
             players.p.foodcount++;
-            if(players.p.foodcount % players.p.storageCount == 0){
+            if(players.p.foodcount % players.p.storageCount == 0 && players.p.max_pel > players.p.pel){
                 players.p.pel++;
             } else {
                 players.p.area += food.area;
