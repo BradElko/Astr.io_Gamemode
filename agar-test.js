@@ -95,7 +95,8 @@ function setup(c){
     };
 
     tp = {
-        badClick : false,
+        cooldown : 30000,
+        noClick : false,
         o : {
             r : 200,
             ctx : c.getContext("2d")   
@@ -368,10 +369,12 @@ function moves_list(e){
             spawn_food(c);
             random_cell(c);
             if(players.rc.ctx.isPointInPath(e.clientX,e.clientY)){
-                tp.badClick = true;
+                tp.noClick = true;
             }
             get_circle(c);
-            
+            if(players.p.ctx.isPointInPath(players.rc.x,players.rc.y)){
+                tp.noClick = true;
+            }
             tp.o.ctx.beginPath();
             tp.o.ctx.arc(players.p.x,players.p.y,tp.o.r,0,2*Math.PI);
             tp.o.ctx.closePath();
@@ -384,7 +387,7 @@ function moves_list(e){
             tp.o.ctx.clip();
             tp.o.ctx.restore();
             if(!tp.o.ctx.isPointInPath(e.clientX,e.clientY)){
-                tp.badClick = true;
+                tp.noClick = true;
             }
             tp.i.ctx.fillStyle='rgba(255,255,255,0)';
             tp.i.ctx.beginPath();
@@ -392,9 +395,9 @@ function moves_list(e){
             tp.i.ctx.closePath();
             tp.i.ctx.fill();
             if(tp.i.ctx.isPointInPath(e.clientX,e.clientY)){
-                tp.badClick = true;
+                tp.noClick = true;
             }
-            if((e.which == 1 || e.button == 0) && moves.c3 && !tp.badClick){
+            if((e.which == 1 || e.button == 0) && moves.c3 && !tp.noClick){
                 players.p.movable = false;
                 players.p.nrg -= 60;
                 clearInterval(moveWithoutMouse);
@@ -406,19 +409,19 @@ function moves_list(e){
                         redraw(c);
                         players.p.r -= getRadiusIncrement;
                     } else {
+                        moves.c3 = false;
                         clearInterval(getTimer);
                         players.p.x = e.clientX;
                         players.p.y = e.clientY;
                         players.p.r = radius*.95;
-                        moves.c3 = false;
-                        players.p.movable = true;
                         redraw(c);
+                        players.p.movable = true;
                         constant_movement(c);
                         window.onkeydown = window.onmousedown = moves_list;
                     }
                 }, 10);
-            } else if (tp.badClick){
-                tp.badClick = false;
+            } else {
+                tp.noClick = false;
                 window.onkeydown = tpKD;
                 window.onmousedown = tpMD;
             }
