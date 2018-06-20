@@ -69,6 +69,7 @@ function setup(c){
             max_pel : 100,
             pelMode : "norm",
             foodcount : 0,
+            storageCount : 0,
             sta : 100,
             max_sta : 100,
             movable : true,
@@ -142,6 +143,15 @@ function init(c){
     //Random
     players.rc.area *= players.rc.sizer;
     players.rc.r = Math.sqrt(players.rc.area/Math.PI);
+    
+    //PelletMode
+    if(players.p.pelMode == "Hypo"){
+        players.p.storageCount = 2;
+    } else if(players.p.pelMode == "Norm") {
+        players.p.storageCount = 3;
+    } else {
+        players.p.storageCount = 4; 
+    }
 }
 
 function create_food(c){
@@ -252,18 +262,18 @@ function update_stats(){
     
     var update = setInterval(function(){
         //Health
-        if(players.p.max_hp > players.p.hp && players.p.max_hp - players.p.hp >= .2){
-            players.p.hp += .2;
-        } else if(players.p.max_hp - players.p.hp < .2) {
+        if(players.p.max_hp > players.p.hp && players.p.max_hp - players.p.hp >= .002){
+            players.p.hp += .002;
+        } else if(players.p.max_hp - players.p.hp < .002) {
             players.p.hp += (players.p.max_hp - players.p.hp);
         } else {
             players.p.hp += 0;
         }
         
         //Energy
-        if(players.p.max_nrg > players.p.nrg && players.p.max_nrg - players.p.nrg >= 1){
-            players.p.nrg += 1;
-        } else if(players.p.max_nrg - players.p.nrg < 1) {
+        if(players.p.max_nrg > players.p.nrg && players.p.max_nrg - players.p.nrg >= .01){
+            players.p.nrg += .01;
+        } else if(players.p.max_nrg - players.p.nrg < .01) {
             players.p.nrg += (players.p.max_nrg - players.p.nrg);
         } else {
             players.p.nrg += 0;
@@ -272,15 +282,15 @@ function update_stats(){
         //Pellets
         
         //Stamina
-        if(players.p.max_sta > players.p.sta && players.p.max_sta - players.p.sta >= 5){
-            players.p.sta += 5;
-        } else if(players.p.max_sta - players.p.sta < 5){
+        if(players.p.max_sta > players.p.sta && players.p.max_sta - players.p.sta >= .05){
+            players.p.sta += .05;
+        } else if(players.p.max_sta - players.p.sta < .05){
             players.p.sta += (players.p.max_sta - players.p.sta);
         } else {
             players.p.sta += 0;
         }
         update_stats_two(players);
-    }, 1000);
+    }, 10);
     
     function update_stats_two(players){
         call_stats();
@@ -349,14 +359,23 @@ function eat_pellets(c){
     for(var i = 0; i < 50; i++){
         if(players.p.ctx.isPointInPath(food_locations[i].x,food_locations[i].y) && players.p.area >= food.area * 1.25){
             food_locations.splice(i,1);
-            players.p.area += food.area;
-            players.p.r = Math.sqrt(players.p.area/Math.PI);
+            players.p.foodcount++;
+            if(players.p.foodcount % players.p.storageCount == 0){
+                players.p.pel++;
+            } else {
+                players.p.area += food.area;
+                players.p.r = Math.sqrt(players.p.area/Math.PI);  
+            }
+            foodMade--;
             food.created = false;
-            foodMade = 49;
             create_food(c);
             redraw(c);
         }
     }
+}
+
+function top_cell(c){
+    
 }
 
 function redraw(c){
