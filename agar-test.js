@@ -95,7 +95,7 @@ function setup(c){
     };
 
     tp = {
-        cooldown : 30000,
+        cooldown : 0,
         noClick : false,
         o : {
             r : 200,
@@ -336,7 +336,7 @@ function moves_list(e){
     var c = document.getElementById("canvas");
     var ctx = c.getContext("2d");
     //Teleport Key 3 
-    if(((e.keyCode == 51 || e.which == 51) || moves.c3) && players.p.nrg >= 60 && !moves.c4 && !moves.c5){
+    if(((e.keyCode == 51 || e.which == 51) || moves.c3) && players.p.nrg >= 60 && tp.cooldown == 0 && !moves.c4 && !moves.c5){
         tp.o.ctx.beginPath();
         tp.o.ctx.arc(players.p.x,players.p.y,tp.o.r,0,2*Math.PI);
         tp.o.ctx.closePath();
@@ -401,6 +401,8 @@ function moves_list(e){
                 players.p.movable = false;
                 players.p.nrg -= 60;
                 clearInterval(moveWithoutMouse);
+                tp.cooldown = 30000;
+                tpCD();
                 var radius = players.p.r;
                 var getRadiusIncrement = players.p.r/300;
                 var getTimer = setInterval(function(){
@@ -425,6 +427,15 @@ function moves_list(e){
                 window.onkeydown = tpKD;
                 window.onmousedown = tpMD;
             }
+        }
+        function tpCD(){
+            var cooldown = setInterval(function(){
+                if(tp.cooldown > 0){
+                    tp.cooldown -= 1000;    
+                } else {
+                    clearInterval(cooldown);
+                }
+            }, 1000);
         }
         moves.c3 = true;
     //Cloak Key 4
