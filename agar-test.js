@@ -428,7 +428,7 @@ function moves_list(e){
     //Teleport Key 3 
     if(((e.keyCode == 51 || e.which == 51) || moves.c3) && players.p.nrg >= 60 && tp.cooldown == 0 && !moves.c4 && !moves.c5){
         tp.o.ctx.beginPath();
-        tp.o.ctx.arc(players.p.x,players.p.y,tp.o.r,0,2*Math.PI);
+        tp.o.ctx.arc(players.p.x,players.p.y,tp.o.r+players.p.r,0,2*Math.PI);
         tp.o.ctx.closePath();
         tp.o.ctx.fillStyle = "rgba(173, 216, 230, 0.5)";
         tp.o.ctx.fill();
@@ -460,7 +460,7 @@ function moves_list(e){
                 tp.noClick = true;
             }
             tp.o.ctx.beginPath();
-            tp.o.ctx.arc(players.p.x,players.p.y,tp.o.r,0,2*Math.PI);
+            tp.o.ctx.arc(players.p.x,players.p.y,tp.o.r+players.p.r,0,2*Math.PI);
             tp.o.ctx.closePath();
             tp.o.ctx.fillStyle ="rgba("+players.p.red+","+players.p.green+","+players.p.blue+","+7.5+")";
             tp.o.ctx.fill();
