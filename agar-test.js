@@ -348,6 +348,7 @@ function moves_list(e){
         function tpKD(e){
             if((e.keyCode == 51 || e.which == 51) && moves.c3){
                 ctx.clearRect(0, 0, c.width, c.height);
+                redraw(c);
                 moves.c3 = false;
                 window.onkeydown = window.onmousedown = moves_list;
             }
