@@ -18,19 +18,18 @@ canvas{
     top:5px;
     left:5px;
     width:150px;
-    height:100px;
+    height:125px;
     padding:4px 24px;
     border:1px solid white;
 }
 
 #player_stats > div{
     position:relative;
-    text-align:center;
     height:15px;
     width:100px;
 }
 
-#health_number, #energy_number, #pellets_number, #stamina_number{
+#health_number, #energy_number, #pellets_number, #stamina_number, #mass_number{
     color:white;
     padding:0px;
     margin:0px;
@@ -39,12 +38,11 @@ canvas{
     font-family:Arial;
 }
 
-#health_stat, #energy_stat, #pellet_stat{
+#health_stat, #energy_stat, #pellet_stat, #stamina_stat{
     margin-bottom:10px;
 }
 
-#health, #energy, #pellets, #stamina{
-    float:left;
+#health, #energy, #pellets, #stamina, #mass{
     height:15px;
 }
 

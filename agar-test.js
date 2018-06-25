@@ -11,6 +11,7 @@ function canvas(){
     var energy = document.getElementById("energy");
     var pellets = document.getElementById("pellets");
     var stamina = document.getElementById("stamina");
+    var mass = document.getElementById("mass");
     
     c.style.width = ww + "px";
     c.style.height = wh + "px";
@@ -250,6 +251,7 @@ function update_stats(){
     var en = document.getElementById("energy_number");
     var pn = document.getElementById("pellets_number");
     var sn = document.getElementById("stamina_number");
+    var mn = document.getElementById("mass_number");
     call_stats();
     function call_stats(){
         var setHealth = Math.round(players.p.max_hp * (players.p.hp / players.p.max_hp) * 100) / 100;
@@ -301,6 +303,12 @@ function update_stats(){
         } else {
             players.p.sta += 0;
         }
+        
+        //Mass
+        var setMass = players.p.area / players.p.sizer;
+        mass.style.width = "100%";
+        mn.innerHTML = setMass;
+        
         updateCounter += 10;
         
         if(updateCounter == 1000){
