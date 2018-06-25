@@ -46,6 +46,7 @@ var got_stats = false;
 var mousepos;
 var moveWithoutMouse;
 var getMasses = {};
+var lastX, lastY;
 
 function setup(c){
     players = {
@@ -313,29 +314,32 @@ function update_stats(){
 }
 
 function constant_movement(c){
-    if(players.p.movable){
-        moveWithoutMouse = setInterval(function(){
+    moveWithoutMouse = setInterval(function(){
+        if(players.p.movable && (mousepos.x == lastX && mousepos.y == lastY)){
             player_movement(mousepos);
             redraw(c);
             moves_list(mousepos);
-        }, 10);  
-    }
-}
+        }
+    }, 10);  
+} 
+
 window.onmousemove = window.onmouseover = move_cell;
-window.onkeydown = window.onmousedown = moves_list;
+window.onkeydown = window.onmousedown = window.oncontextmenu = moves_list;
 
 function player_movement(getmouse){
     mousepos = getmouse;
     var offsetX = (mousepos.x - players.p.x);
     var offsetY = (mousepos.y - players.p.y);
     var dist = Math.sqrt((offsetX * offsetX) + (offsetY * offsetY));
-    if(dist > 2){
-        var mag = 2;
-        var magX = (2 * offsetX) / dist;
-        var magY = (2 * offsetY) / dist;
+    var multiplyer = .05;
+    
+    if(dist > players.p.r){
+        var mag = players.p.r;
+        var magX = (mag * offsetX) / dist;
+        var magY = (mag * offsetY) / dist;
 
-        players.p.magX = magX * (players.p.sta / players.p.max_sta);
-        players.p.magY = magY * (players.p.sta / players.p.max_sta);
+        players.p.magX = magX * (players.p.sta / players.p.max_sta) * multiplyer;
+        players.p.magY = magY * (players.p.sta / players.p.max_sta) * multiplyer;
 
         players.p.transX = players.p.x + players.p.magX;
         players.p.transY = players.p.y + players.p.magY;
@@ -343,12 +347,14 @@ function player_movement(getmouse){
         var magX = offsetX;
         var magY = offsetY;
 
-        players.p.magX = magX * (players.p.sta / players.p.max_sta);
-        players.p.magY = magY * (players.p.sta / players.p.max_sta);
+        players.p.magX = magX * (players.p.sta / players.p.max_sta) * multiplyer;
+        players.p.magY = magY * (players.p.sta / players.p.max_sta) * multiplyer;
 
         players.p.transX = players.p.x + players.p.magX;
         players.p.transY = players.p.y + players.p.magY;
     }
+    lastX = mousepos.x;
+    lastY = mousepos.y;
 }
 
 function move_cell(e){
@@ -366,7 +372,7 @@ function move_cell(e){
             x : e.clientX,
             y : e.clientY
         }
-        player_movement(e);
+        moves_list(e);
     }
 }
 
