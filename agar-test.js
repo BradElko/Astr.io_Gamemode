@@ -75,6 +75,7 @@ function setup(c){
             sta : 100,
             max_sta : 100,
             movable : true,
+            mouseMoved : false,
             dead : false,
             opacity : 1,
             ctx : c.getContext("2d")
@@ -316,6 +317,7 @@ function update_stats(){
 function constant_movement(c){
     moveWithoutMouse = setInterval(function(){
         if(players.p.movable && (mousepos.x == lastX && mousepos.y == lastY)){
+            players.p.mouseMoved = false;
             player_movement(mousepos);
             redraw(c);
             moves_list(mousepos);
@@ -331,7 +333,7 @@ function player_movement(getmouse){
     var offsetX = (mousepos.x - players.p.x);
     var offsetY = (mousepos.y - players.p.y);
     var dist = Math.sqrt((offsetX * offsetX) + (offsetY * offsetY));
-    var multiplyer = .05;
+    var multiplyer = .025 * (7500 / players.p.area);
     
     if(dist > players.p.r){
         var mag = players.p.r;
@@ -355,10 +357,16 @@ function player_movement(getmouse){
     }
     lastX = mousepos.x;
     lastY = mousepos.y;
+    if(players.p.mouseMoved){
+        var c = document.getElementById("canvas");
+        constant_movement(c);
+    }
 }
 
 function move_cell(e){
     if(players.p.movable){
+        players.p.mouseMoved = true
+        clearInterval(moveWithoutMouse);
         var c = document.getElementById("canvas");
         mousepos = {
             x : e.clientX,
