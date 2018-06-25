@@ -34,7 +34,7 @@ canvas{
     padding:0px;
     margin:0px;
     line-height:15px;
-    font-size:15px;
+    font-size:16px;
     font-family:Arial;
 }
 
@@ -42,7 +42,14 @@ canvas{
     margin-bottom:10px;
 }
 
+#health_stat, #energy_stat, #pellet_stat, #stamina_stat, #mass_stat{
+    width:100px;
+    text-align:center;
+}
+
 #health, #energy, #pellets, #stamina, #mass{
+    position:absolute;
+    z-index:-1;
     height:15px;
 }
 

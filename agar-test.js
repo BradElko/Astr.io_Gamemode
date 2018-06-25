@@ -305,7 +305,7 @@ function update_stats(){
         }
         
         //Mass
-        var setMass = players.p.area / players.p.sizer;
+        var setMass = Math.floor(players.p.area / players.p.sizer);
         mass.style.width = "100%";
         mn.innerHTML = setMass;
         
@@ -413,8 +413,16 @@ function eat_pellets(c){
 
 function eat_players(c){
     if(players.p.ctx.isPointInPath(players.rc.x,players.rc.y) && players.p.area >= players.rc.area * 1.25 && !players.rc.dead){
-        players.p.area += players.rc.area;
-        players.p.r = Math.sqrt(players.p.area/Math.PI);
+        var playerGrowth = 0;
+        var playerTimer = setInterval(function(){
+            if(playerGrowth < 1000){
+                players.p.area += players.rc.area / 100;
+                players.p.r = Math.sqrt(players.p.area/Math.PI);
+                playerGrowth += 10;
+            } else {
+                clearInterval(playerTimer);
+            }
+        }, 10);
         players.rc.dead = true;
         
         redraw(c);
