@@ -333,7 +333,7 @@ function player_movement(getmouse){
     var offsetX = (mousepos.x - players.p.x);
     var offsetY = (mousepos.y - players.p.y);
     var dist = Math.sqrt((offsetX * offsetX) + (offsetY * offsetY));
-    var multiplyer = .025 * (7500 / players.p.area);
+    var multiplyer = .0375 * (7500 / players.p.area);
     
     if(dist > players.p.r){
         var mag = players.p.r;
