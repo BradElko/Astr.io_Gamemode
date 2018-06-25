@@ -363,8 +363,6 @@ function player_movement(getmouse){
         players.p.transX = players.p.x + players.p.magX;
         players.p.transY = players.p.y + players.p.magY;
     }
-    lastX = mousepos.x;
-    lastY = mousepos.y;
     if(players.p.mouseMoved){
         var c = document.getElementById("canvas");
         constant_movement(c);
@@ -390,6 +388,8 @@ function move_cell(e){
         }
         moves_list(e);
     }
+    lastX = mousepos.x;
+    lastY = mousepos.y;
 }
 
 function eat_pellets(c){
